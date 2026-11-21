@@ -28,7 +28,10 @@ def main():
         raise SystemExit(f"asset too large: {size} bytes > {MAX_BYTES}")
     dst = out_dir / "entry.png"
     shutil.copyfile(src, dst)
-    # sanity: the copied file must still be a PNG (magic bytes intact)
+    # sanity: the copied file must still be a PNG. A PNG always starts
+    # with the 8-byte signature 89 50 4E 47 0D 0A 1A 0A ("magic bytes");
+    # if the copy were truncated or corrupted, the first bytes would
+    # differ and the entry would fail validation on the server side.
     with open(dst, "rb") as fh:
         if fh.read(8) != b"\x89PNG\r\n\x1a\n":
             raise SystemExit(f"copied file is not a PNG: {dst}")
